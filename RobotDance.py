@@ -1,5 +1,6 @@
 from owl_client import OwlClient, Joint
 from utilities import Overlays
+from utilities import Overlays
 import cv2
 
 import time
@@ -26,12 +27,13 @@ pTime = 0
 
 # Owl logo
 imgLogo = cv2.imread('Images/owl_logo.png', cv2.IMREAD_UNCHANGED)
+imgLogo = cv2.imread('Images/owl_logo.png', cv2.IMREAD_UNCHANGED)
 
 detector = pm.poseDetector()
 
 while True:
     success, img = cap.read()
-    img = cv2.resize(img, (0, 0), fx=2.5, fy=2.5)
+    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     # img = cv2.resize(img, (1280, 720))
     lmg = detector.findPose(img)
     lmList = detector.findPosition(img, draw=False)
@@ -85,7 +87,9 @@ while True:
         if not DISABLE_ROBOT:
             base = np.interp(distance_rShoulderOrigin, [
                 0, 300], [-1.54, 1.54])
+                0, 300], [-1.54, 1.54])
             shoulder = np.interp(distance_lElbowOrigin, [
+                0, 300], [-0.54, 0.24])
                 0, 300], [-0.54, 0.24])
             elbow = np.interp(distance_rElbowOrigin, [
                 0, 300], [-0.74, 0.74])
@@ -108,7 +112,10 @@ while True:
     pTime = cTime
     img = Overlays.fpsOverlay(fps, img)
     # img = Overlays.fpsOverlayHighContrast(fps, img)
+    img = Overlays.fpsOverlay(fps, img)
+    # img = Overlays.fpsOverlayHighContrast(fps, img)
 
+    img = Overlays.OverlayLogo('Images/owl_logo.png', img, 60, 10, 10)
     img = Overlays.OverlayLogo('Images/owl_logo.png', img, 60, 10, 10)
 
     cv2.imshow("Orangewood - Realtime View", img)
