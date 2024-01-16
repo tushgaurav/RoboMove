@@ -1,5 +1,7 @@
 from owl_client import OwlClient, Joint
+from utilities import Overlays
 import cv2
+
 import time
 import numpy as np
 import math
@@ -18,17 +20,12 @@ if not DISABLE_ROBOT:
     client = OwlClient(owl_robot_ip)
 
 
-cap = cv2.VideoCapture(0)
-# cap = cv2.VideoCapture('Videos/Dance 2.mp4')
+cap = cv2.VideoCapture(-1)
+# cap = cv2.VideoCapture('Videos/Dance 1.mp4')
 pTime = 0
 
 # Owl logo
-imgLogo = cv2.imread('Images/owl_logo.png', -1)
-imgLogo = cv2.cvtColor(imgLogo, cv2.COLOR_BGR2GRAY)
-imgLogo = cv2.resize(imgLogo, (0, 0), fx=0.5, fy=0.5)
-rows, cols = imgLogo.shape
-x_offset = 100
-y_offset = 100
+imgLogo = cv2.imread('Images/owl_logo.png', cv2.IMREAD_UNCHANGED)
 
 detector = pm.poseDetector()
 
@@ -87,9 +84,9 @@ while True:
 
         if not DISABLE_ROBOT:
             base = np.interp(distance_rShoulderOrigin, [
-                0, 300], [-1.14, 1.14])
+                0, 300], [-1.54, 1.54])
             shoulder = np.interp(distance_lElbowOrigin, [
-                0, 300], [-0.24, 0.24])
+                0, 300], [-0.54, 0.24])
             elbow = np.interp(distance_rElbowOrigin, [
                 0, 300], [-0.74, 0.74])
             wrist = np.interp(distance_rWristsOrigin,
@@ -109,16 +106,13 @@ while True:
     cTime = time.time()
     fps = 1 / (cTime - pTime)
     pTime = cTime
-    cv2.putText(img, "FPS: " + str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 1.8,
-                (255, 0, 0), 3)
+    img = Overlays.fpsOverlay(fps, img)
+    # img = Overlays.fpsOverlayHighContrast(fps, img)
 
-    roi = img[0:rows, 0:cols]
-    retval, thresh = cv2.threshold(imgLogo, 125, 25, cv2.THRESH_BINARY)
-    mask_Image = cv2.bitwise_not(roi, roi, mask=thresh)
-    img[0:rows, 0:cols] = mask_Image
+    img = Overlays.OverlayLogo('Images/owl_logo.png', img, 60, 10, 10)
 
     cv2.imshow("Orangewood - Realtime View", img)
-    if cv2.waitKey(40) == ord('q'):
+    if cv2.waitKey(250) == ord('q'):
         break
 
 client.close()
