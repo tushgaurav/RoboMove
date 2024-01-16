@@ -33,7 +33,7 @@ detector = pm.poseDetector()
 
 while True:
     success, img = cap.read()
-    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+    img = cv2.resize(img, (0, 0), fx=2.5, fy=2.5)
     # img = cv2.resize(img, (1280, 720))
     lmg = detector.findPose(img)
     lmList = detector.findPosition(img, draw=False)
@@ -85,12 +85,11 @@ while True:
         cv2.line(img, (oX, oY), (rWrist[0], rWrist[1]), (55, 0, 255), 2)
 
         if not DISABLE_ROBOT:
-            base = np.interp(distance_rShoulderOrigin, [
-                0, 300], [-1.54, 1.54])
-                0, 300], [-1.54, 1.54])
+            base = np.interp(distance_rShoulderOrigin, [0, 300], [-1.54, 1.54])
+
             shoulder = np.interp(distance_lElbowOrigin, [
-                0, 300], [-0.54, 0.24])
-                0, 300], [-0.54, 0.24])
+                                 0, 300], [-0.54, 0.24])
+
             elbow = np.interp(distance_rElbowOrigin, [
                 0, 300], [-0.74, 0.74])
             wrist = np.interp(distance_rWristsOrigin,
