@@ -1,11 +1,13 @@
 import cv2
 import mediapipe as mp
 import time
+import numpy as np
+from mediapipe import solutions
 
 
 class poseDetector():
 
-    def __init__(self, mode=False, smooth=True, detectionCon=0.8, trackCon=0.7):
+    def __init__(self, mode=False, smooth=True, detectionCon=0.5, trackCon=0.5):
         self.mode = mode
         self.smooth = smooth
         self.detectionCon = detectionCon
@@ -37,7 +39,7 @@ class poseDetector():
                                            self.mpPose.POSE_CONNECTIONS)
         return img
 
-    def findPosition(self, img, draw=True):
+    def findPosition(self, img, draw=False):
         lmList = []
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
@@ -49,27 +51,27 @@ class poseDetector():
                     cv2.circle(img, (cx, cy), 5, (0, 255, 0), cv2.FILLED)
 
         return lmList
-
+    
 
 def main():
-    cap = cv2.VideoCapture('Videos/Dance 1.mp4')
+    cap = cv2.VideoCapture('/home/ow-labs/workspaces/symphony/RoboMove/test_videos/1.mp4')
     pTime = 0
     detector = poseDetector()
 
     while True:
         success, img = cap.read()
-        img = cv2.resize(img, (1280, 720))
+        img = cv2.resize(img, (640,480))
 
         detector.findPose(img)
         lmList = detector.findPosition(img)
         print(lmList)
 
-        cTime = time.time()
-        fps = 1/(cTime-pTime)
-        pTime = cTime
+        # cTime = time.time()
+        # fps = 1/(cTime-pTime)
+        # pTime = cTime
 
-        cv2.putText(img, str(int(fps)), (10, 70),
-                    cv2.FONT_HERSHEY_PLAIN, 5, (255, 0, 0), 5)
+        # cv2.putText(img, str(int(fps)), (10, 70),
+        #             cv2.FONT_HERSHEY_PLAIN, 5, (255, 0, 0), 5)
 
         cv2.imshow("Image", img)
         cv2.waitKey(20)
