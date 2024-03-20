@@ -2,13 +2,15 @@ import cv2
 import PoseModule as pm
 import time
 from utilities import Overlays
+from movements import robotMove
+from collections import Counter
 
 class posemapping():
 
     def __init__(self):
         self.detection = pm.poseDetector()
         self.move_dict = {}
-        self.feed_path = "/home/aion/workspace/RoboMove/Videos/moves.MP4"
+        self.feed_path = "RoboMove/test_videos/1.mp4"
         self.imgLogo = cv2.imread('Images/owl_logo.png', cv2.IMREAD_UNCHANGED)
 
 
@@ -92,8 +94,15 @@ class posemapping():
             zones[3] = zone
         
         return zones
-
-
+  
+    def dance_moves(self,zone):
+        if zone == [1,3,2,2]:
+            robotMove().move_bot(1)
+        if zone == [2, 4, 2, 4]:
+            robotMove().move_bot(2)
+        if zone == [1, 4, 2, 4]:
+            robotMove().move_bot(3)
+    
     
     def append_to_dict(self, key, data):
         # Check if key exists in the dictionary, create it if not
@@ -115,6 +124,39 @@ class posemapping():
         img = cv2.line(frame,(hor_x,hor_y), (hor_X,hor_y),(255,0,0,), 1)
 
         return vert_x, hor_y ,img
+    
+    def find_most_common_elements(self,list_of_lists):
+        if not list_of_lists:
+          return []
+    
+        # Assuming all lists have the same length, if lists have variable lengths, adjust accordingly.
+        list_length = len(list_of_lists[0])
+        most_common_elements = []
+    
+        for i in range(list_length):
+            # Collect the ith element from each of the last six lists
+            ith_elements = [lst[i] for lst in list_of_lists]
+            # Find the most common element for this position
+            most_common = Counter(ith_elements).most_common(1)[0][0]
+            most_common_elements.append(most_common)
+    
+        return most_common_elements
+
+    def camera_feed(self):
+        cap = cv2.VideoCapture(0)
+        pTime = 0
+
+        while True:
+            success, frame = cap.read()
+            img = cv2.resize(frame, (1080,720))
+            cTime = time.time()
+            fps = 1/(cTime-pTime)
+            pTime = cTime
+            img = Overlays.OverlayLogo('RoboMove/Images/owl_logo.png', img, 60, 10, 10)
+            cv2.imshow("Orangewood - Detection View", img)
+            cv2.imshow("Orangewood - Normal View", frame)
+            
+            cv2.waitKey(20)
 
 
     def feed(self):
@@ -130,21 +172,23 @@ class posemapping():
             lmList = self.detection.findPosition(img)
             if len(lmList) != 0:
                 move = self.map(lmList)
-                # print(type(leftarm))
-                # print(*move['left leg'], sep="\n")
                 thres_x, thres_y, img = self.draw_zones(lmList,img)
-                print(self.zones(move,thres_x=thres_x, thres_y=thres_y))
+                all_generated_lists = []
+                all_generated_lists.append(self.zones(move,thres_x=thres_x, thres_y=thres_y))
+                last_six_lists = all_generated_lists[-6:]
+                most_common_in_last_six = self.find_most_common_elements(last_six_lists)
+                print(most_common_in_last_six)
+                # break
+                self.dance_moves(most_common_in_last_six)
+                
+
             cTime = time.time()
             fps = 1/(cTime-pTime)
             pTime = cTime
-
-            # cv2.putText(img, str(int(fps)), (10, 70),
-            #             cv2.FONT_HERSHEY_PLAIN, 5, (255, 0, 0), 5)
-             # img = Overlays.fpsOverlayHighContrast(fps, img)
-            img = Overlays.OverlayLogo('/home/aion/workspace/RoboMove/Images/owl_logo.png', img, 60, 10, 10)
+            img = Overlays.OverlayLogo('RoboMove/Images/owl_logo.png', img, 60, 10, 10)
             cv2.imshow("Orangewood - Detection View", img)
             cv2.imshow("Orangewood - Normal View", frame)
-
+            
             cv2.waitKey(20)
 
 

@@ -1,6 +1,7 @@
 from owl_client import OwlClient, Joint
 import os
 import json
+import math
 class robotMove():
 
     def __init__(self):
@@ -16,6 +17,8 @@ class robotMove():
 
     def joint_poses(self,angle_list):
         joint_pose = Joint()
+        for i in range(len(angle_list)):
+            angle_list[i] = angle_list[i] * math.pi / 180
         joint_pose.Base = angle_list[0]
         joint_pose.Shoulder =angle_list[1]
         joint_pose.Elbow = angle_list[2]
@@ -27,16 +30,19 @@ class robotMove():
 
 
     def move_bot(self,joint_index):
-        with open(self.joint_path, 'r') as file:
+        with open("/home/ow-labs/workspaces/symphony/RoboMove/config/joint.json", 'r') as file:
             data = json.load(file)
-
-        joint_angles = data[joint_index]
-
+        
+        joint_angles = data[str(joint_index)]
+        print(joint_angles)
         poses = self.joint_poses(joint_angles)
 
-        self.client.move_to_joint()
+        self.client.move_to_joint(poses,self.jointSpeed)
         
-
+        
+# if __name__ == "__main__":
+#     Move = robotMove()
+#     Move.move_bot(1)
 
 
         
