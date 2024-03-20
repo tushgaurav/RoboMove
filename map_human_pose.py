@@ -8,7 +8,7 @@ class posemapping():
     def __init__(self):
         self.detection = pm.poseDetector()
         self.move_dict = {}
-        self.feed_path = "/home/ow-labs/workspaces/symphony/RoboMove/Videos/moves.MP4"
+        self.feed_path = "/home/aion/workspace/RoboMove/Videos/moves.MP4"
         self.imgLogo = cv2.imread('Images/owl_logo.png', cv2.IMREAD_UNCHANGED)
 
 
@@ -122,8 +122,9 @@ class posemapping():
         pTime = 0
 
         while True:
-            success, img = cap.read()
-            img = cv2.resize(img, (1240,720))
+            success, frame = cap.read()
+            img = cv2.resize(frame, (1080,720))
+            
 
             self.detection.findPose(img)
             lmList = self.detection.findPosition(img)
@@ -140,8 +141,10 @@ class posemapping():
             # cv2.putText(img, str(int(fps)), (10, 70),
             #             cv2.FONT_HERSHEY_PLAIN, 5, (255, 0, 0), 5)
              # img = Overlays.fpsOverlayHighContrast(fps, img)
-            img = Overlays.OverlayLogo('/home/ow-labs/workspaces/symphony/RoboMove/Images/owl_logo.png', img, 60, 10, 10)
-            cv2.imshow("Orangewood - Realtime View", img)
+            img = Overlays.OverlayLogo('/home/aion/workspace/RoboMove/Images/owl_logo.png', img, 60, 10, 10)
+            cv2.imshow("Orangewood - Detection View", img)
+            cv2.imshow("Orangewood - Normal View", frame)
+
             cv2.waitKey(20)
 
 
