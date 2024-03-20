@@ -2,6 +2,7 @@ import cv2
 import PoseModule as pm
 import time
 from utilities import Overlays
+from paho.mqtt import client as mqtt_client
 
 class posemapping():
 
@@ -10,7 +11,15 @@ class posemapping():
         self.move_dict = {}
         self.feed_path = "/home/aion/workspace/RoboMove/Videos/moves.MP4"
         self.imgLogo = cv2.imread('Images/owl_logo.png', cv2.IMREAD_UNCHANGED)
+        self.client = mqtt_client.Client()
+        self.client.on_connect = self.on_connect
+        self.client.connect('localhost', 1883)
 
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("Connected to MQTT Broker!")
+        else:
+            print("Failed to connect, return code %d\n", rc)
 
     def map(self,poselist):
         for i in range (len(poselist)):
